@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>UsoZimali Stock Trading Platform</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+  }
+  h1 {
+    text-align: center;
+  }
+  #info {
+    background-color: #e0f7fa;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 1.1em;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+  table, th, td {
+    border: 1px solid #ddd;
+  }
+  th, td {
+    padding: 12px;
+    text-align: center;
+  }
+  th {
+    background-color: #f2f2f2;
+  }
+  #exampleSection {
+    margin-top: 30px;
+  }
+  #exampleOutput {
+    margin-top: 20px;
+    white-space: pre-wrap;
+    background-color: #f9fbe7;
+    padding: 15px;
+    border-radius: 8px;
+    font-family: monospace;
+  }
+  #hiddenExampleBtn {
+    display: none;
+    margin-top: 10px;
+  }
+  /* Payment and instructions pages styles */
+  #paymentPage, #instructionsPage {
+    display: none;
+    margin-top: 20px;
+    border: 2px solid #ccc;
+    padding: 20px;
+    border-radius: 8px;
+    background: #f0f0f0;
+  }
+  #paymentPage h3, #instructionsPage h3 {
+    margin-top: 0;
+  }
+  footer {
+    margin-top: 40px;
+    font-size: 0.9em;
+    line-height: 1.4;
+    text-align: center;
+    color: #555;
+  }
+</style>
+</head>
+<body>
+
+<h1>UsoZimali Stock Trading Platform</h1>
+
+<div id="mainContent">
+  <div id="info">
+    <p><strong>Special Offer:</strong> For every share you buy, you get 100% back for every month over the next 6 months. Additionally, you pay 45% of your investment each month over the next 6 months.</p>
+  </div>
+
+  <h2>Available Stocks</h2>
+  <table id="stockTable">
+    <thead>
+      <tr>
+        <th>Stock</th>
+        <th>Price</th>
+        <th>Buy</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Stocks will be populated here -->
+    </tbody>
+  </table>
+
+  <div id="exampleSection">
+    <button id="showExampleBtn">Show Investment Example</button>
+    <button id="hiddenExampleBtn">Hide Example Details</button>
+    <div id="exampleOutput"></div>
+  </div>
+</div>
+
+<!-- Payment Page -->
+<div id="paymentPage">
+  <h3>Complete Your Purchase</h3>
+  <p>You're buying <span id="shareCount">1</span> share at R<span id="sharePrice">1000</span>.</p>
+  <p>Total amount: R<span id="totalAmount">1000</span></p>
+  <p>Please proceed with payment to complete your purchase.</p>
+  <button id="payNowBtn">Pay Now</button>
+  <button id="cancelPaymentBtn">Cancel</button>
+</div>
+
+<!-- Instructions Page -->
+<div id="instructionsPage">
+  <h3>Payment Instructions</h3>
+  <p>Please send the R<span id="paymentAmount">1000</span> via your preferred payment method to the following bank account:</p>
+  <ul>
+    <li><strong>Bank:</strong> ABC Bank</li>
+    <li><strong>Account Name:</strong> UsoZimali</li>
+    <li><strong>Account Number:</strong> 123456789</li>
+    <li><strong>Reference:</strong> Your Name or Transaction ID</li>
+  </ul>
+  <p>After completing the payment, send a screenshot or payment proof (PDF, Word, JPG) of your payment confirmation to our WhatsApp number: <strong>0846102212</strong>.</p>
+  <p>Upload your screenshot or proof below before confirming:</p>
+  <input type="file" id="screenshotUpload" accept=".pdf,.doc,.docx,.jpg,.jpeg" />
+  <br/><br/>
+  <button id="confirmPaymentBtn" disabled>Confirm Payment</button>
+  <button id="cancelInstructionsBtn">Cancel</button>
+</div>
+
+<!-- Footer with company info -->
+<footer>
+  <p><strong>Company Information</strong></p>
+  <p>Founded: 2023</p>
+  <p>Founder: John Doe</p>
+  <p>Headquarters: Harare, Zimbabwe</p>
+  <p>Contact: info@uzoszimali.co.zw | +263 77 123 4567</p>
+  <p>Website: <a href="https://www.uzoszimali.co.zw" target="_blank" style="color:#555;">www.uzoszimali.co.zw</a></p>
+</footer>
+
+<script>
+  const stocks = [
+    { name: 'Apple', symbol: 'AAPL', price: 1000 },
+    { name: 'Google', symbol: 'GOOGL', price: 2500 },
+    { name: 'Amazon', symbol: 'AMZN', price: 3000 },
+    { name: 'Tesla', symbol: 'TSLA', price: 5000 },
+  ];
+
+  const portfolio = {};
+  let cash = 10000;
+
+  let selectedStockPrice = 0; // Store selected stock price
+  let selectedShares = 1; // default 1
+
+  function populateStocks() {
+    const tbody = document.querySelector('#stockTable tbody');
+    stocks.forEach(stock => {
+      const row = document.createElement('tr');
+
+      const nameCell = document.createElement('td');
+      nameCell.textContent = `${stock.name} (${stock.symbol})`;
+      row.appendChild(nameCell);
+
+      const priceCell = document.createElement('td');
+      priceCell.textContent = `R${stock.price.toLocaleString()}`;
+      row.appendChild(priceCell);
+
+      const buyCell = document.createElement('td');
+      const buyBtn = document.createElement('button');
+      buyBtn.textContent = 'Buy';
+      buyBtn.onclick = () => showPaymentPage(stock);
+      buyCell.appendChild(buyBtn);
+      row.appendChild(buyCell);
+
+      tbody.appendChild(row);
+    });
+  }
+
+  function showPaymentPage(stock) {
+    selectedStockPrice = stock.price;
+    selectedShares = 1; // or extend to allow multiple
+    document.getElementById('shareCount').textContent = selectedShares;
+    document.getElementById('sharePrice').textContent = selectedStockPrice.toLocaleString();
+    document.getElementById('totalAmount').textContent = selectedStockPrice.toLocaleString();
+    document.getElementById('paymentAmount').textContent = selectedStockPrice.toLocaleString();
+    document.getElementById('mainContent').style.display = 'none';
+    document.getElementById('paymentPage').style.display = 'block';
+  }
+
+  // When "Pay Now" clicked, show instructions page
+  document.getElementById('payNowBtn').onclick = function() {
+    document.getElementById('paymentPage').style.display = 'none';
+    document.getElementById('instructionsPage').style.display = 'block';
+  };
+
+  // When "Confirm Payment" clicked, finalize
+  document.getElementById('confirmPaymentBtn').onclick = function() {
+    alert('Thank you! Your payment is confirmed, and your purchase is complete.');
+    document.getElementById('instructionsPage').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+  };
+
+  // When "Cancel" in instructions page
+  document.getElementById('cancelInstructionsBtn').onclick = function() {
+    document.getElementById('instructionsPage').style.display = 'none';
+    document.getElementById('paymentPage').style.display = 'block';
+  };
+
+  // When "Cancel" in payment page
+  document.getElementById('cancelPaymentBtn').onclick = function() {
+    document.getElementById('paymentPage').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+  };
+
+  // Enable "Confirm" only after a file (PDF, Word, JPG) is uploaded
+  document.getElementById('screenshotUpload').addEventListener('change', function() {
+    document.getElementById('confirmPaymentBtn').disabled = !(this.files.length > 0);
+  });
+
+  // Finalize after upload and confirm
+  document.getElementById('confirmPaymentBtn').onclick = function() {
+    alert('Thank you! Your payment is confirmed, and your purchase is complete.');
+    document.getElementById('instructionsPage').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+  };
+
+  // Populate stocks on page load
+  populateStocks();
+
+  // Investment example
+  document.getElementById('showExampleBtn').onclick = function() {
+    const stockPrice = 1000; // R1000
+    const numShares = 1;
+    const totalInvestment = stockPrice * numShares;
+
+    const monthlyReturn = totalInvestment;
+    const monthlyPayment = totalInvestment * 0.45;
+
+    const totalReceived = monthlyReturn * 6;
+    const totalPaid = monthlyPayment * 6;
+    const netGain = totalReceived - totalPaid;
+
+    const exampleText = `
+Example Investment:
+- Shares bought: ${numShares}
+- Price per share: R${stockPrice}
+- Total investment: R${totalInvestment.toLocaleString()}
+
+Monthly Returns:
+- You receive R${monthlyReturn.toLocaleString()} each month for 6 months.
+
+Monthly Payments:
+- You pay R${monthlyPayment.toLocaleString()} each month for 6 months.
+`;
+    document.getElementById('exampleOutput').textContent = exampleText.trim();
+    document.getElementById('hiddenExampleBtn').style.display = 'inline-block';
+  };
+
+  document.getElementById('hiddenExampleBtn').onclick = function() {
+    document.getElementById('exampleOutput').textContent = '';
+    this.style.display = 'none';
+  };
+</script>
+
+</body>
+</html>
